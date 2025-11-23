@@ -1,0 +1,8 @@
+Posiciones (fila,col) más jugadas por NICOLAS (amarillo)
+(0,1): 76
+(0,5): 75
+(0,0): 74
+(0,6): 54
+(0,2): 33
+(0,3): 20
+(0,4): 20
