@@ -143,39 +143,7 @@ def mcts_uct(qR:dict,qA:dict) -> Tuple[
                                 
     return q_a,q_r
 
-def mostrar_mcts(q_r: dict, q_a: dict,
-                 file_rojo="qvalues_rojo.json",
-                 file_amarillo="qvalues_amarillo.json"):
-    # -------- GUARDAR EN JSON ----------
-    def convertir(diccionario):
-        salida = {}
-        for t, states in diccionario.items():
-            salida[str(t)] = {}
-            for state, data in states.items():
-                salida[str(t)][str(state)] = data
-        return salida
 
-    json_rojo_Mateo = convertir(q_r)
-    json_amarillo_Mateo = convertir(q_a)
-
-    with open(file_rojo, "w", encoding="utf-8") as f:
-        json.dump(json_rojo_Mateo, f, indent=4)
-
-    with open(file_amarillo, "w", encoding="utf-8") as f:
-        json.dump(json_amarillo_Mateo, f, indent=4)
-
-    print(f"\nArchivos generados:")
-    print(f" → {file_rojo}")
-    print(f" → {file_amarillo}")
-
-
-
-qR=q_values() 
-qA=q_values()                                        
-
-q_a, q_r = mcts_uct(qR, qA)
-
-mostrar_mcts(q_r,q_a)
 
 
 
