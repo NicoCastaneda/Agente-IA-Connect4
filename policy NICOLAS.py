@@ -5,7 +5,6 @@ from connect4.policy import Policy
 #from typing import override
 import json
 from connect4.connect_state import ConnectState
-import time
 
 
 class NICOLAS(Policy):
@@ -24,86 +23,27 @@ class NICOLAS(Policy):
         return col_validas
     
 
-    def sim_random(self, tablero, color): #ya no es random sino que usa a mateo
+    def sim_random(self, tablero, color): #simulacion random hasta terminar
         s=ConnectState(tablero.copy(), player=color)
 
         while not s.is_final():
-           
-            if np.count_nonzero(s.board == 1) == np.count_nonzero(s.board == -1): #color del sigueionte
-                myColor = -1
-            else:
-                myColor = 1
+            acciones=s.get_free_cols()
+            c=np.random.choice(acciones)
 
-            state = ConnectState(s.board,player=myColor)
-
-            #1) Gano yo?
-            mov=None #para guardar la jugada que se haria en ese estado en especifico
-            for c in state.get_free_cols():
-                try:
-                    newState = state.transition(c)
-                    if newState.get_winner() == myColor:
-                        mov=c
-                        break
-                except:
-                    continue
-
-            #2) Gana el otro?
-            if mov is None: #si no gane yo no entro al if entonces mov no se asigana a c
-                stateOponent = ConnectState(s.board,player=-myColor)
-                for c in state.get_free_cols():
-                    try:
-                        newState = stateOponent.transition(c)
-                        if newState.get_winner() == -myColor:
-                            mov=c
-                            break
-                    except:
-                        continue
-
-            #3)  Si no juego centro,lasiguiente del centro y la anterior PERO que al jugar ahi no le permita ganar al otro  
-            if mov is None:
-                center_options = [3, 4, 2]
-                noPlay=[]
-                for c in state.get_free_cols():
-                    try:
-                        newState = state.transition(c)
-                        stateOponent = ConnectState(newState.board,player=-myColor)
-                        for c2 in stateOponent.get_free_cols():
-                            newStateOponent = stateOponent.transition(c2)
-                            if newStateOponent.get_winner() == -myColor:
-                                noPlay.append(c2)
-                    except:
-                        continue
-
-                available_center_options = [c for c in center_options if state.is_applicable(c) and c not in noPlay]
-                if available_center_options:
-                    mov=int(available_center_options[0])
-                else:
-                    
-                    possiblePlays=[c for c in state.get_free_cols() if c not in noPlay]
-                    if not possiblePlays:
-                        #para evitar el cannot be empty si no hay posible plays
-                        posibles=state.get_free_cols()
-                        if not posibles:
-                            break
-                        mov=int(np.random.choice(posibles))
-                    #5) si no aleatorio, PERO que al jugar ahi no le permita ganar al otro
-                    else:
-                        rng=np.random.default_rng()
-                        mov=int(rng.choice(possiblePlays))
-
-            try:
-                s=s.transition(mov)
+            try: #para que por si acaso no se muera la simulacion y lo de como empate
+                s=s.transition(c)
             except:
                 reward=0
                 break
 
         ganador=s.get_winner()
+
         if ganador==color:
-            reward=1
+            reward=1 #gano
         elif ganador==0:
-            reward=0
+            reward=0 #empato
         else:
-            reward=-1
+            reward=-1 #perdio
 
         self.rollout_rewards.append(reward)
         return reward
@@ -151,15 +91,8 @@ class NICOLAS(Policy):
 
         estado_inicial(state_root, root_key, True)
 
-        start_time=time.time()
-        maxt=self.time_out - 0.2 #un colchonsito pa no pasase del time out
-
         #iteraciones
-        for i in range(self.budget): #inner trial
-
-            if time.time()-start_time>maxt:
-                break
-
+        for _ in range(self.budget):
             state=state_root
             key=root_key
             camino=[]
@@ -239,7 +172,7 @@ class NICOLAS(Policy):
         with open(amarillo_path, 'r') as f:
             self.mejores_amarillo=json.load(f)
 
-        self.budget=100
+        self.budget=1000
     
     #@override
     def act(self, s: np.ndarray)->int: #elige la jugada final
