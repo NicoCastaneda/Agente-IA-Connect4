@@ -1,0 +1,8 @@
+Posiciones (fila,col) más jugadas por MAN (rojo)
+(0,2): 59
+(0,4): 57
+(0,3): 56
+(0,1): 37
+(0,5): 26
+(0,6): 15
+(0,0): 11
